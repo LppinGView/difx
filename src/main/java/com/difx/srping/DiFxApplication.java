@@ -85,8 +85,10 @@ public class DiFxApplication {
             //获取当前文件夹下所有文件
             File[] files = file.listFiles();
             for (File f : files) {
+                System.out.println(f);
                 //截取当前类的全限定名，用于加载类
                 String classPath = getClassPath(f.getAbsolutePath());
+                System.out.println(classPath);
                 try {
                     //只初始化组件类
                     Class clz = classLoader.loadClass(classPath);
@@ -141,10 +143,14 @@ public class DiFxApplication {
         return resource;
     }
 
-    //通过文件地址获取类的全限定名
-    private String getClassPath(String add){
-        return add.substring(add.indexOf("com"),
-                add.indexOf(".class")).replace("\\", ".");
+    /**
+     * 通过文件地址获取类的全限定名
+     * @param addr
+     * @return
+     */
+    private String getClassPath(String addr){
+        return addr.substring(addr.indexOf("com"),
+                addr.indexOf(".class")).replace("/", ".");
     }
 
     /***
