@@ -9,22 +9,18 @@ import sun.plugin2.util.SystemUtil;
 
 import java.io.File;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static com.difx.srping.enums.ScopeEnum.PROTOTYPE;
 import static com.difx.srping.enums.ScopeEnum.SINGLETON;
-import static java.util.Objects.isNull;
 
 public class DiFxApplication {
 
     private final ConcurrentHashMap<String, Object> singletonObjects = new ConcurrentHashMap<>(); //单例池
     private final ConcurrentHashMap<String, Object> earlySingletonObjects = new ConcurrentHashMap<>();//二级缓存
     private final ConcurrentHashMap<String, BeanDefinition> beanDefinitionMap = new ConcurrentHashMap<>();
-
-
     //三级缓存
     @SuppressWarnings("unchecked")
     private static final Map<String, ObjectFactory<?>> singletonFactories = new HashMap<>(16);
@@ -181,12 +177,14 @@ public class DiFxApplication {
      * @return
      */
     private String getClassPath(String addr){
+
+        addr = addr.substring(addr.indexOf("com"), addr.indexOf(".class"));
+
         String osName = SystemUtil.getSystemProperty("os.name").toLowerCase();
         if (osName.startsWith("windows")){
-            return addr.substring(addr.indexOf("com"), addr.indexOf(".class")).replace("\\", ".");
+            return addr.replace("\\", ".");
         }else {
-            return addr.substring(addr.indexOf("com"),
-                    addr.indexOf(".class")).replace("/", ".");
+            return addr.replace("/", ".");
         }
     }
 
@@ -201,6 +199,7 @@ public class DiFxApplication {
         try {
             Class clazz = beanDefinition.getClazz();
 
+            //
             if (null != getSingleton(beanName)){
                 return getSingleton(beanName);
             }
@@ -256,7 +255,7 @@ public class DiFxApplication {
     private Object getSingleton(String beanName){
         Object bean = singletonObjects.get(beanName);
         //一级缓存不存在 同时正在被创建 此时实例正在被代理
-        if (null == bean && !isSingletonsCurrentlyInCreation(beanName)){
+        if (null == bean && isSingletonsCurrentlyInCreation(beanName)){
             bean = earlySingletonObjects.get(beanName);
             if (null == bean){
                 ObjectFactory<?> singletonFactory = singletonFactories.get(beanName);
