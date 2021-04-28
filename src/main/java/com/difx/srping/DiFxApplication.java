@@ -5,6 +5,7 @@ import com.difx.srping.annotion.Autowired;
 import com.difx.srping.annotion.Component;
 import com.difx.srping.annotion.ComponentScan;
 import com.difx.srping.annotion.Scope;
+import sun.plugin2.util.SystemUtil;
 
 import java.io.File;
 import java.lang.reflect.Field;
@@ -180,8 +181,13 @@ public class DiFxApplication {
      * @return
      */
     private String getClassPath(String addr){
-        return addr.substring(addr.indexOf("com"),
-                addr.indexOf(".class")).replace("/", ".");
+        String osName = SystemUtil.getSystemProperty("os.name").toLowerCase();
+        if (osName.startsWith("windows")){
+            return addr.substring(addr.indexOf("com"), addr.indexOf(".class")).replace("\\", ".");
+        }else {
+            return addr.substring(addr.indexOf("com"),
+                    addr.indexOf(".class")).replace("/", ".");
+        }
     }
 
     /***
